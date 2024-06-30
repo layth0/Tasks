@@ -7,53 +7,52 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a href="javascript:void(0);" onclick="loadCreate()">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+<div id="productList">
+    @await Html.PartialAsync("_ProductList", Model)
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function loadDetails(id) {
+        $.get('/Products/Details/' + id, function (data) {
+            $('#productList').html(data);
+        });
+    }
+
+    function loadEdit(id) {
+        $.get('/Products/Edit/' + id, function (data) {
+            $('#productList').html(data);
+        });
+    }
+
+    function loadDelete(id) {
+        $.get('/Products/Delete/' + id, function (data) {
+            $('#productList').html(data);
+        });
+    }
+
+    function loadCreate() {
+        $.get('/Products/Create', function (data) {
+            $('#productList').html(data);
+        });
+    }
+
+    $(document).on('submit', 'form', function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var url = form.attr('action');
+        var method = form.attr('method');
+
+        $.ajax({
+            url: url,
+            method: method,
+            data: form.serialize(),
+            success: function (data) {
+                $('#productList').html(data);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,12 @@
+﻿@model Tasks.Models.Products
+
+<div>
+    <h2>@Model.Name</h2>
+    <p>@Model.Description</p>
+    <p>Price: @Model.Price</p>
+    <p>Quantity: @Model.Quantity</p>
+    <p>Category: @Model.Category</p>
+    <button onclick="loadCreate()">Create</button>
+    <button onclick="loadEdit(@Model.Id)">Edit</button>
+    <button onclick="loadDelete(@Model.Id)">Delete</button>
+</div>

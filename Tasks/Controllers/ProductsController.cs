@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Tasks.Context;
 using Tasks.Models;
@@ -22,6 +20,10 @@ namespace Tasks.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_ProductList", await _context.Products.ToListAsync());
+            }
             return View(await _context.Products.ToListAsync());
         }
 
@@ -40,18 +42,26 @@ namespace Tasks.Controllers
                 return NotFound();
             }
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_ProductDetails", products);
+            }
+
             return View(products);
         }
 
         // GET: Products/Create
         public IActionResult Create()
         {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_CreateProduct");
+            }
+
             return View();
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,Quantity,Category")] Products products)
@@ -60,8 +70,18 @@ namespace Tasks.Controllers
             {
                 _context.Add(products);
                 await _context.SaveChangesAsync();
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return PartialView("_ProductList", await _context.Products.ToListAsync());
+                }
                 return RedirectToAction(nameof(Index));
             }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_CreateProduct", products);
+            }
+
             return View(products);
         }
 
@@ -78,12 +98,16 @@ namespace Tasks.Controllers
             {
                 return NotFound();
             }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_EditProduct", products);
+            }
+
             return View(products);
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,Quantity,Category")] Products products)
@@ -99,6 +123,10 @@ namespace Tasks.Controllers
                 {
                     _context.Update(products);
                     await _context.SaveChangesAsync();
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return PartialView("_ProductList", await _context.Products.ToListAsync());
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -113,6 +141,12 @@ namespace Tasks.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_EditProduct", products);
+            }
+
             return View(products);
         }
 
@@ -131,6 +165,11 @@ namespace Tasks.Controllers
                 return NotFound();
             }
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_DeleteProduct", products);
+            }
+
             return View(products);
         }
 
@@ -143,9 +182,12 @@ namespace Tasks.Controllers
             if (products != null)
             {
                 _context.Products.Remove(products);
+                await _context.SaveChangesAsync();
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return PartialView("_ProductList", await _context.Products.ToListAsync());
+                }
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
